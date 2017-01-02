@@ -1,0 +1,29 @@
+{
+  "name": "mobilarte-dimensions-plugin",
+  "version": "0.0.1",
+  "description": "Mobilarte : Sketchup Toolbox ================================",
+  "main": "index.js",
+  "directories": {
+    "doc": "../docs"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-less": "^3.3.0",
+    "gulp-zip": "^3.2.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mobilarte/mobilarte-dimensions.git"
+  },
+  "author": "Martin Mueller",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/mobilarte/mobilarte-dimensions/issues"
+  },
+  "homepage": "https://github.com/mobilarte/mobilarte-dimensions#readme"
+}
