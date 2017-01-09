@@ -11,7 +11,7 @@ gulp.task('rbz_create', function () {
             '../src/**/*'
 
         ])
-        .pipe(zip('maxsyma_dimensions.rbz'))
+        .pipe(zip('mobilarte_dimensions.rbz'))
         .pipe(gulp.dest('../dist'));
 });
 
