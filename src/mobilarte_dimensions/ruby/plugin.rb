@@ -1,5 +1,5 @@
 ﻿require 'sketchup'
-require_relative 'observer/app_observer.rb'
+require_relative 'observer/app_observer'
 
 module Mobilarte
   module Dimensions

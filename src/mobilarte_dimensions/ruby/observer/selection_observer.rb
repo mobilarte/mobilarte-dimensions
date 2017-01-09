@@ -6,31 +6,39 @@ module Mobilarte
     class SelectionObserver < Sketchup::SelectionObserver
 
       @observer_active
-
+      @lu
+      @lf
+      
       def initialize
-        @observer_active = false   
+        @observer_active = Sketchup.read_default("mobilarte", "bbox", true)
+        @observer_active = !@observer_active
         toggle_observer
-      end
 
-      def onSelectionBulkChange(selection)
-        lu = {Length::Inches => Dimensions.lh['inches'], 
+        @lu = {Length::Inches => Dimensions.lh['inches'], 
               Length::Feet => Dimensions.lh['feet'], 
               Length::Millimeter => Dimensions.lh['millimeter'],
               Length::Centimeter => Dimensions.lh['centimeter'],
               Length::Meter => Dimensions.lh['meter']}
               
-        lf = {Length::Decimal => Dimensions.lh['decimal'],
+        @lf = {Length::Decimal => Dimensions.lh['decimal'],
               Length::Architectural => Dimensions.lh['architectural'],
               Length::Engineering => Dimensions.lh['engineering'],
               Length::Fractional => Dimensions.lh['fractional']}
-              
+      end
+
+      def onSelectionBulkChange(selection)
         if @observer_active
           entity = selection[0]
           if entity.is_a? Sketchup::ComponentInstance
             bounds = _compute_faces_bounds(entity.definition)
             dims = [bounds.width, bounds.height, bounds.depth]
-            lu_s = lu[Sketchup.active_model.options["UnitsOptions"]["LengthUnit"]]
-            lf_s = lf[Sketchup.active_model.options["UnitsOptions"]["LengthFormat"]]
+            lu_s = @lu[Sketchup.active_model.options["UnitsOptions"]["LengthUnit"]]
+            lf_s = @lf[Sketchup.active_model.options["UnitsOptions"]["LengthFormat"]]
+            # not used for now
+            # lp_s = Sketchup.active_model.options["UnitsOptions"]["LengthPrecision"].to_s
+
+            optionsprovider = Sketchup.active_model.options["UnitsOptions"]
+            optionsprovider.each_key { | key | puts(key)}
             l = Dimensions.lh['L: ']
             w = Dimensions.lh['W: ']
             t = Dimensions.lh['T: ']
@@ -40,7 +48,7 @@ module Mobilarte
           end
         end
       end
-      
+
       def is_observer_active
         if @observer_active
           MF_CHECKED
@@ -48,19 +56,18 @@ module Mobilarte
           MF_UNCHECKED
         end
       end
-      
+
       def toggle_observer
         if @observer_active
           @observer_active = false
           Sketchup.active_model.selection.remove_observer self
-          MF_UNCHECKED
         else
           @observer_active = true
           Sketchup.active_model.selection.add_observer self
-          MF_CHECKED
         end
+        Sketchup.write_default("mobilarte", "bbox", @observer_active)
       end
-      
+
       def _compute_faces_bounds(definition)
         bounds = Geom::BoundingBox.new
         definition.entities.each { |entity|
