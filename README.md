@@ -8,7 +8,7 @@ Mobilarte : Dimensions
 
 I use this plugin to verify dimensions when using the awsome [L'Air du Bois Sketchup Toolbox](https://github.com/lairdubois/lairdubois-toolbox-sketchup-plugin).
 
-![Mobilarte Dimensions](docs/img/capture.jpg)
+![Mobilarte Dimensions](docs/imgs/capture.jpg)
 
 License
 -------
