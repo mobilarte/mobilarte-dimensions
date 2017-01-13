@@ -1,25 +1,26 @@
-﻿require 'sketchup'
-require 'extensions'
+﻿#require 'sketchup'
+#require 'extensions'
 
 module Mobilarte
   module Dimensions
     class SelectionObserver < Sketchup::SelectionObserver
 
+      ATTRIBUTE_DICTIONARY = 'mobilarte'
+
       @observer_active
       @lu
       @lf
       
-      def initialize
-        @observer_active = Sketchup.read_default("mobilarte", "bbox", true)
-        @observer_active = !@observer_active
+      def initialize        
         toggle_observer
 
+        # not used for now, left here
         @lu = {Length::Inches => Dimensions.lh['inches'], 
               Length::Feet => Dimensions.lh['feet'], 
               Length::Millimeter => Dimensions.lh['millimeter'],
               Length::Centimeter => Dimensions.lh['centimeter'],
               Length::Meter => Dimensions.lh['meter']}
-              
+        # not used for now, left here
         @lf = {Length::Decimal => Dimensions.lh['decimal'],
               Length::Architectural => Dimensions.lh['architectural'],
               Length::Engineering => Dimensions.lh['engineering'],
@@ -32,21 +33,17 @@ module Mobilarte
           if entity.is_a? Sketchup::ComponentInstance
             bounds = _compute_faces_bounds(entity.definition)
             dims = [bounds.width, bounds.height, bounds.depth]
-            lu_s = @lu[Sketchup.active_model.options["UnitsOptions"]["LengthUnit"]]
-            lf_s = @lf[Sketchup.active_model.options["UnitsOptions"]["LengthFormat"]]
-            # not used for now
-            # lp_s = Sketchup.active_model.options["UnitsOptions"]["LengthPrecision"].to_s
-
-            optionsprovider = Sketchup.active_model.options["UnitsOptions"]
-            optionsprovider.each_key { | key | puts(key)}
             l = Dimensions.lh['L: ']
             w = Dimensions.lh['W: ']
             t = Dimensions.lh['T: ']
-            status_text = (l + dims[0].to_s + '   ' + w + dims[1].to_s + '   ' + t + dims[2].to_s)
-            status_text = status_text + '              ' + lu_s + '/' + lf_s
-            Sketchup.set_status_text(status_text, SB_PROMPT)
+            status_text = (l + dims[0].to_s + ' ' + w + dims[1].to_s + ' ' + t + dims[2].to_s)
+            Sketchup.set_status_text(status_text, SB_VCB_VALUE)
           end
         end
+      end
+      
+      def onSelectionCleared(selection)
+         Sketchup.set_status_text('', SB_VCB_VALUE)
       end
 
       def is_observer_active
@@ -58,14 +55,19 @@ module Mobilarte
       end
 
       def toggle_observer
-        if @observer_active
-          @observer_active = false
-          Sketchup.active_model.selection.remove_observer self
-        else
+        create_if_nil = true
+        model = Sketchup.active_model
+        attrdict = model.attribute_dictionary ATTRIBUTE_DICTIONARY, create_if_nil
+        bbox = attrdict["bbox"]
+        if bbox == nil or !bbox
           @observer_active = true
+          attrdict["bbox"] = true
           Sketchup.active_model.selection.add_observer self
+        else
+          @observer_active = false
+          attrdict["bbox"] = false
+          Sketchup.active_model.selection.remove_observer self
         end
-        Sketchup.write_default("mobilarte", "bbox", @observer_active)
       end
 
       def _compute_faces_bounds(definition)

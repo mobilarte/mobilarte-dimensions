@@ -1,8 +1,8 @@
 "BoundingBox Size"="Dimensions du cadre d'objet";
 "Dimensions"="Afficher les dimensions";
 "Toolbox for Woodworkers - Dimensions"="Boîte à outils pour métiers du bois - dimensions";
-"L: "="long.: ";
-"W: "="larg.: ";
+"L: "="L.: ";
+"W: "="l.: ";
 "T: "="ép.: ";
 "inches"="pouce";
 "feet"="pied";
