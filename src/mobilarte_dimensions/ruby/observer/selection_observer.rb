@@ -7,12 +7,22 @@ module Mobilarte
 
       ATTRIBUTE_DICTIONARY = 'mobilarte'
 
-      @observer_active
       @lu
       @lf
+      @attrdict
       
-      def initialize        
-        toggle_observer
+      def initialize   
+        create_if_nil = true
+        model = Sketchup.active_model
+        @attrdict = model.attribute_dictionary ATTRIBUTE_DICTIONARY, create_if_nil
+        bbox = @attrdict["bbox"]
+        if bbox == nil or bbox == true
+          @attrdict["bbox"] = true
+          Sketchup.active_model.selection.add_observer self
+        else
+          @attrdict["bbox"] = false
+          Sketchup.active_model.selection.remove_observer self
+        end
 
         # not used for now, left here
         @lu = {Length::Inches => Dimensions.lh['inches'], 
@@ -28,16 +38,20 @@ module Mobilarte
       end
 
       def onSelectionBulkChange(selection)
-        if @observer_active
-          entity = selection[0]
-          if entity.is_a? Sketchup::ComponentInstance
-            bounds = _compute_faces_bounds(entity.definition)
-            dims = [bounds.width, bounds.height, bounds.depth]
-            l = Dimensions.lh['L: ']
-            w = Dimensions.lh['W: ']
-            t = Dimensions.lh['T: ']
-            status_text = (l + dims[0].to_s + ' ' + w + dims[1].to_s + ' ' + t + dims[2].to_s)
-            Sketchup.set_status_text(status_text, SB_VCB_VALUE)
+        if @attrdict["bbox"]
+          if selection.count == 1
+            entity = selection[0]
+            if entity.is_a? Sketchup::ComponentInstance
+              bounds = _compute_faces_bounds(entity.definition)
+              dims = [bounds.width, bounds.height, bounds.depth]
+              l = Dimensions.lh['L: ']
+              w = Dimensions.lh['W: ']
+              t = Dimensions.lh['T: ']
+              status_text = (l + dims[0].to_s + ' ' + w + dims[1].to_s + ' ' + t + dims[2].to_s)
+              Sketchup.set_status_text(status_text, SB_VCB_VALUE)
+            end
+          else
+            Sketchup.set_status_text('', SB_VCB_VALUE)
           end
         end
       end
@@ -47,7 +61,7 @@ module Mobilarte
       end
 
       def is_observer_active
-        if @observer_active
+        if @attrdict["bbox"]
           MF_CHECKED
         else
           MF_UNCHECKED
@@ -55,20 +69,15 @@ module Mobilarte
       end
 
       def toggle_observer
-        create_if_nil = true
-        model = Sketchup.active_model
-        attrdict = model.attribute_dictionary ATTRIBUTE_DICTIONARY, create_if_nil
-        bbox = attrdict["bbox"]
-        if bbox == nil or !bbox
-          @observer_active = true
-          attrdict["bbox"] = true
-          Sketchup.active_model.selection.add_observer self
-        else
-          @observer_active = false
-          attrdict["bbox"] = false
+        if @attrdict["bbox"]
+          @attrdict["bbox"] = false
           Sketchup.active_model.selection.remove_observer self
+          Sketchup.set_status_text('', SB_VCB_VALUE)
+        else
+          @attrdict["bbox"] = true
+          Sketchup.active_model.selection.add_observer self
         end
-      end
+      end        
 
       def _compute_faces_bounds(definition)
         bounds = Geom::BoundingBox.new
