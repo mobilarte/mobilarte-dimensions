@@ -10,8 +10,8 @@ module Mobilarte
       @lu
       @lf
       @attrdict
-      
-      def initialize   
+
+      def initialize
         create_if_nil = true
         model = Sketchup.active_model
         @attrdict = model.attribute_dictionary ATTRIBUTE_DICTIONARY, create_if_nil
@@ -25,8 +25,8 @@ module Mobilarte
         end
 
         # not used for now, left here
-        @lu = {Length::Inches => Dimensions.lh['inches'], 
-              Length::Feet => Dimensions.lh['feet'], 
+        @lu = {Length::Inches => Dimensions.lh['inches'],
+              Length::Feet => Dimensions.lh['feet'],
               Length::Millimeter => Dimensions.lh['millimeter'],
               Length::Centimeter => Dimensions.lh['centimeter'],
               Length::Meter => Dimensions.lh['meter']}
@@ -48,16 +48,19 @@ module Mobilarte
               w = Dimensions.lh['W: ']
               t = Dimensions.lh['T: ']
               status_text = (l + dims[0].to_s + ' ' + w + dims[1].to_s + ' ' + t + dims[2].to_s)
-              Sketchup.set_status_text(status_text, SB_VCB_VALUE)
+              #Sketchup.set_status_text(status_text, SB_VCB_VALUE)
+              notification = UI::Notification.new(Dimensions.ex)
+              notification.message = status_text
+              notification.show
             end
           else
             Sketchup.set_status_text('', SB_VCB_VALUE)
           end
         end
       end
-      
+
       def onSelectionCleared(selection)
-         Sketchup.set_status_text('', SB_VCB_VALUE)
+         #Sketchup.set_status_text('', SB_VCB_VALUE)
       end
 
       def is_observer_active
@@ -77,7 +80,7 @@ module Mobilarte
           @attrdict["bbox"] = true
           Sketchup.active_model.selection.add_observer self
         end
-      end        
+      end
 
       def _compute_faces_bounds(definition)
         bounds = Geom::BoundingBox.new
